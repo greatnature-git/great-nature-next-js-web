@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const NAV_LINKS = [
-  { href: "/#hero", label: "Home" },
+  { href: "/", label: "Home" },
   { href: "/about-us", label: "About" },
   { href: "/projects", label: "Projects" },
   { href: "/#enquiry", label: "Contact" },
@@ -47,7 +47,7 @@ export function SiteHeader() {
       }}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-10">
-        <Link href="/#hero" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <Image
             src="/logo-wordmark.png"
             alt="Great Nature Homes"

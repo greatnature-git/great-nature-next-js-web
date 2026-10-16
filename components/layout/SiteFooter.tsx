@@ -3,7 +3,7 @@ import { PREVIOUS_PROJECTS } from "@/lib/data/projects";
 import { COMPANY_CONTACT } from "@/lib/data/about";
 
 const QUICK_LINKS = [
-  { href: "/#hero", label: "Home" },
+  { href: "/", label: "Home" },
   { href: "/about-us", label: "About Us" },
   { href: "/projects", label: "Projects" },
   { href: "/careers", label: "Careers" },
