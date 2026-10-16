@@ -22,7 +22,13 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     if (reducedMotion) return;
 
     const lenis = new Lenis({
-      duration: 1.2,
+      // Deliberately no `duration`/`easing`: those make every wheel tick
+      // restart a full eased tween from the current (still-easing) position,
+      // which reads as "stuck" catch-up lag during slow, discrete scrolling
+      // (fast scrolling retargets before the tail is noticeable, so it was
+      // hiding the problem). `lerp` recalculates against the live target
+      // every frame instead, which stays responsive at any scroll speed.
+      lerp: 0.1,
       smoothWheel: true,
       syncTouch: false,
     });
