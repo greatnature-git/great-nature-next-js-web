@@ -5,6 +5,7 @@ import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvide
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { MobileEnquireButton } from "@/components/layout/MobileEnquireButton";
+import { IntroSplash } from "@/components/splash/IntroSplash";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable} antialiased`}>
       <body>
+        <IntroSplash />
         <SmoothScrollProvider>
           <SiteHeader />
           {children}
