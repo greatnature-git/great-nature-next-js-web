@@ -93,16 +93,37 @@ export function ScrollCinemaSection({
 
   // GSAP's scrub onUpdate can fire more than once per animation frame;
   // coalesce draws onto the next rAF instead of drawing synchronously.
+  //
+  // The index is kept fractional (not rounded) and the two frames it falls
+  // between are cross-faded by that fraction. A plain rounded index is a
+  // hard cut between stills, which only looks like motion when it happens
+  // fast enough (fast scrolling); a slow scroll holds one still for a long
+  // stretch with no movement in between, which reads as the scrub
+  // "sticking" even though the scroll position is still advancing.
   const pendingIndexRef = useRef(0);
   const rafScheduledRef = useRef(false);
   const drawPending = () => {
     rafScheduledRef.current = false;
-    const index = pendingIndexRef.current;
-    const frame = findNearestLoadedFrame(frames.current, index);
-    canvasHandleRef.current?.drawFrame(frame);
+    const rawIndex = pendingIndexRef.current;
+    const lo = Math.floor(rawIndex);
+    const mixAmount = rawIndex - lo;
+    const frameLo = findNearestLoadedFrame(frames.current, lo);
+
+    let frameHi: HTMLImageElement | undefined;
+    let mix = 0;
+    if (mixAmount > 0) {
+      const hi = Math.min(frames.current.length - 1, lo + 1);
+      const candidate = findNearestLoadedFrame(frames.current, hi);
+      if (candidate && candidate !== frameLo) {
+        frameHi = candidate;
+        mix = mixAmount;
+      }
+    }
+
+    canvasHandleRef.current?.drawFrame(frameLo, frameHi, mix);
   };
-  const scheduleDraw = (index: number) => {
-    pendingIndexRef.current = index;
+  const scheduleDraw = (rawIndex: number) => {
+    pendingIndexRef.current = rawIndex;
     if (!rafScheduledRef.current) {
       rafScheduledRef.current = true;
       requestAnimationFrame(drawPending);
@@ -129,8 +150,8 @@ export function ScrollCinemaSection({
       onUpdate: (self) => {
         progress.set(self.progress);
         if (total > 0) {
-          const frameIndex = Math.min(total - 1, Math.round(self.progress * (total - 1)));
-          scheduleDraw(frameIndex);
+          const rawIndex = Math.min(total - 1, self.progress * (total - 1));
+          scheduleDraw(rawIndex);
         }
       },
     });
@@ -143,14 +164,15 @@ export function ScrollCinemaSection({
     return (
       <section id={id} className={className}>
         <div ref={viewportRef} className="relative h-screen w-full overflow-hidden">
+          {/* prefers-reduced-motion means no self-driven motion: show the
+              poster frame only, don't autoplay/loop a video over it. */}
           <video
             className="absolute inset-0 h-full w-full object-cover"
             src={fallbackVideoSrc}
             poster={posterSrc}
-            autoPlay
             muted
-            loop
             playsInline
+            preload="metadata"
           />
           <WatermarkCover containerRef={viewportRef} />
           {children?.({ progress, isReady: true, loadedCount: total, total })}

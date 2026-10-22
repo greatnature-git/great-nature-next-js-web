@@ -33,15 +33,28 @@ export function getCoverRect(cssWidth: number, cssHeight: number, imageRatio: nu
   };
 }
 
+export interface FrameBlend {
+  next: HTMLImageElement;
+  amount: number;
+}
+
 /**
  * Draws an image onto a canvas using "object-fit: cover" semantics, scaled
  * for the current devicePixelRatio so the frame sequence stays crisp.
+ *
+ * When `blend` is given, the next frame is cross-faded on top by `amount`
+ * (0-1). The scroll-to-frame-index mapping is otherwise a hard cut between
+ * stills, which only reads as motion when frames flip fast enough (fast
+ * scrolling); a slow scroll holds a single still for a long time with no
+ * motion at all in between, which reads as the scrub "sticking". Blending
+ * toward the next frame keeps motion continuous at any scroll speed.
  */
 export function drawFrameCover(
   ctx: CanvasRenderingContext2D,
   image: HTMLImageElement,
   cssWidth: number,
-  cssHeight: number
+  cssHeight: number,
+  blend?: FrameBlend
 ) {
   const { naturalWidth: iw, naturalHeight: ih } = image;
   if (iw === 0 || ih === 0) return;
@@ -50,6 +63,12 @@ export function drawFrameCover(
 
   ctx.clearRect(0, 0, cssWidth, cssHeight);
   ctx.drawImage(image, dx, dy, drawWidth, drawHeight);
+
+  if (blend && blend.amount > 0 && blend.next.naturalWidth > 0) {
+    ctx.globalAlpha = Math.min(1, blend.amount);
+    ctx.drawImage(blend.next, dx, dy, drawWidth, drawHeight);
+    ctx.globalAlpha = 1;
+  }
 }
 
 export function sizeCanvasToElement(canvas: HTMLCanvasElement, cssWidth: number, cssHeight: number) {
