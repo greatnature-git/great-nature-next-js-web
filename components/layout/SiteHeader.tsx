@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useLenis } from "@/components/providers/SmoothScrollProvider";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -23,10 +24,26 @@ export function SiteHeader() {
   // to a light bar that would clash with every section it sits over.
   const [fade, setFade] = useState(0);
   const pathname = usePathname();
+  const lenisRef = useLenis();
   // Project detail pages and the About page have their own in-page #enquiry
   // section; everywhere else, the enquiry form lives on the home page.
   const hasOwnEnquirySection = pathname.startsWith("/projects/") || pathname === "/about-us";
   const enquiryHref = hasOwnEnquirySection ? "#enquiry" : "/#enquiry";
+
+  // Clicking a nav link to the page you're already on is a no-op navigation
+  // — Next.js won't scroll you anywhere. Treat it as "take me back to the
+  // top" instead, the same way clicking a logo/home link conventionally
+  // does, on every page this header appears on.
+  function handleNavClick(event: React.MouseEvent, href: string) {
+    if (href !== pathname) return;
+    event.preventDefault();
+    const lenis = lenisRef?.current;
+    if (lenis) {
+      lenis.scrollTo(0, { duration: 1.2 });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
 
   useEffect(() => {
     const onScroll = () => setFade(Math.min(1, window.scrollY / FADE_DISTANCE));
@@ -47,7 +64,7 @@ export function SiteHeader() {
       }}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-10">
-        <Link href="/" className="flex items-center">
+        <Link href="/" onClick={(event) => handleNavClick(event, "/")} className="flex items-center">
           <Image
             src="/logo-wordmark.png"
             alt="Great Nature Homes"
@@ -63,6 +80,7 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={(event) => handleNavClick(event, link.href)}
               className="text-sm font-medium tracking-wide text-stone-50/90 transition-colors hover:text-clay-400"
             >
               {link.label}

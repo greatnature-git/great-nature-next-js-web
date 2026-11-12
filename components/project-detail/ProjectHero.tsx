@@ -17,7 +17,9 @@ export function ProjectHero({ project }: { project: Project }) {
         sizes="100vw"
         className="object-cover"
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/35 to-forest-950/10" />
+      {/* Concentrated darker where the title/controls actually sit (bottom ~45%),
+          fading out higher up so the image still reads clearly up top. */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest-950 from-5% via-forest-950/80 via-40% to-transparent to-85%" />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -36,13 +38,17 @@ export function ProjectHero({ project }: { project: Project }) {
           <span className="rounded-full bg-forest-950/70 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-stone-50 ring-1 ring-stone-50/20 backdrop-blur-sm">
             {project.status}
           </span>
-          <span className="text-sm text-stone-200/90">{project.location}</span>
+          <span className="text-sm text-stone-200/90 [text-shadow:0_1px_8px_rgba(0,0,0,0.7)]">
+            {project.location}
+          </span>
         </div>
 
-        <h1 className="mt-4 font-display text-4xl font-medium tracking-tight text-stone-50 sm:text-5xl md:text-6xl">
+        <h1 className="mt-4 font-display text-4xl font-medium tracking-tight text-stone-50 [text-shadow:0_4px_24px_rgba(0,0,0,0.55)] sm:text-5xl md:text-6xl">
           {project.name}
         </h1>
-        <p className="mt-4 max-w-xl text-balance text-stone-200/85">{project.tagline}</p>
+        <p className="mt-4 max-w-xl text-balance text-stone-200/85 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
+          {project.tagline}
+        </p>
 
         <div className="mt-8 flex flex-wrap gap-4">
           <a

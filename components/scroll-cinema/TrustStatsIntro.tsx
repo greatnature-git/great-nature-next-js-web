@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useTransform, type MotionValue } from "framer-motion";
 import { TRUST_STATS, type TrustStat } from "@/lib/data/stats";
 
@@ -71,16 +71,23 @@ function StatCounter({
 }) {
   const count = useTransform(progress, [countStart, countEnd], [0, stat.value], { clamp: true });
   const barWidth = useTransform(progress, [countStart, countEnd], ["0%", "100%"], { clamp: true });
-  const [display, setDisplay] = useState(() => Math.round(count.get()));
+  const numberRef = useRef<HTMLSpanElement>(null);
 
+  // Write the digit directly to the DOM instead of through React state: a
+  // scroll-scrubbed count (unlike a timed one) can tick dozens of times per
+  // frame while the user flicks past it, and four of these run at once
+  // alongside the hero canvas's own rAF redraw — routing each tick through
+  // setState/re-render is what was making that beat of the scroll stutter.
   useEffect(() => {
-    return count.on("change", (value) => setDisplay(Math.round(value)));
+    return count.on("change", (value) => {
+      if (numberRef.current) numberRef.current.textContent = String(Math.round(value));
+    });
   }, [count]);
 
   return (
     <div className="flex flex-col items-center px-2">
       <p className="font-display text-4xl font-medium text-stone-50 [text-shadow:0_2px_16px_rgba(0,0,0,0.5)] sm:text-5xl">
-        {display}
+        <span ref={numberRef}>{Math.round(count.get())}</span>
         <span className="text-clay-400">{stat.suffix}</span>
       </p>
       <p className="mt-2 max-w-[8.5rem] text-[11px] font-medium uppercase tracking-wide text-stone-100/90 sm:text-xs">

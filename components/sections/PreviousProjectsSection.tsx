@@ -9,9 +9,15 @@ import { PREVIOUS_PROJECTS, type Project } from "@/lib/data/projects";
 import { useIsCoarseOrSmall } from "@/lib/hooks/useMediaQuery";
 
 const PROJECTS_FRAME_COUNT = { desktop: 180, mobile: 90 };
+// See HERO_FRAME_STRIDE in HeroScrollSection: keep full density so the
+// cross-fade blend never has to composite two too-distant stills.
+const PROJECTS_FRAME_STRIDE = 1;
 
-function buildFrameUrls(base: string, count: number) {
-  return Array.from({ length: count }, (_, i) => `${base}/frame_${String(i + 1).padStart(4, "0")}.webp`);
+function buildFrameUrls(base: string, totalRendered: number, stride: number) {
+  return Array.from(
+    { length: Math.ceil(totalRendered / stride) },
+    (_, i) => `${base}/frame_${String(i * stride + 1).padStart(4, "0")}.webp`
+  );
 }
 
 export function PreviousProjectsSection() {
@@ -20,7 +26,8 @@ export function PreviousProjectsSection() {
     () =>
       buildFrameUrls(
         isMobile ? "/frames/projects-mobile" : "/frames/projects",
-        isMobile ? PROJECTS_FRAME_COUNT.mobile : PROJECTS_FRAME_COUNT.desktop
+        isMobile ? PROJECTS_FRAME_COUNT.mobile : PROJECTS_FRAME_COUNT.desktop,
+        PROJECTS_FRAME_STRIDE
       ),
     [isMobile]
   );

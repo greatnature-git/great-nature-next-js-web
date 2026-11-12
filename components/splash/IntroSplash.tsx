@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useReducedMotion } from "@/lib/hooks/useMediaQuery";
 
 const FALLBACK_TIMEOUT_MS = 8000;
@@ -8,11 +9,26 @@ const FADE_MS = 600;
 
 type Phase = "playing" | "closing" | "done";
 
+// A hard browser refresh (not a link click, not a fresh/direct visit) is
+// reported by the Navigation Timing API as "reload" — that's the one case
+// the product wants to always bounce back to the top of the homepage,
+// splash and all.
+function isHardRefresh() {
+  const [entry] = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
+  return entry?.type === "reload";
+}
+
+// useLayoutEffect warns when it runs during SSR (this component is still
+// server-rendered for the initial HTML under the App Router); fall back to
+// useEffect there since this only matters once the page is in the browser.
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 export function IntroSplash() {
   const [phase, setPhase] = useState<Phase>("playing");
   const closedRef = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reducedMotion = useReducedMotion();
+  const router = useRouter();
 
   const close = () => {
     if (closedRef.current) return;
@@ -20,6 +36,30 @@ export function IntroSplash() {
     setPhase("closing");
     window.setTimeout(() => setPhase("done"), FADE_MS);
   };
+
+  // Runs as a layout effect (before paint, and before SmoothScrollProvider's
+  // own effect initializes Lenis) so the browser's own scroll restoration
+  // never has a chance to leave the page part-way down before Lenis reads
+  // that position as its starting point.
+  useIsomorphicLayoutEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    if (!isHardRefresh()) return;
+
+    window.scrollTo(0, 0);
+    if (window.location.pathname !== "/") {
+      router.replace("/");
+    }
+
+    // The splash video (preload="auto") delays the `load` event well past
+    // when this effect first runs; some browsers restore the previous
+    // scroll offset right at `load`, after the reset above has already
+    // happened, so re-assert it once more when that fires.
+    const resetScroll = () => window.scrollTo(0, 0);
+    window.addEventListener("load", resetScroll);
+    return () => window.removeEventListener("load", resetScroll);
+  }, [router]);
 
   useEffect(() => {
     if (phase !== "playing" || reducedMotion !== true) return;

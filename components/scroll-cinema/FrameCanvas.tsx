@@ -1,10 +1,10 @@
 "use client";
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
-import { drawFrameCover, sizeCanvasToElement, type FrameBlend } from "@/lib/scroll-cinema/drawFrame";
+import { drawFrameCover, sizeCanvasToElement } from "@/lib/scroll-cinema/drawFrame";
 
 export interface FrameCanvasHandle {
-  drawFrame: (image: HTMLImageElement | undefined, next?: HTMLImageElement, mix?: number) => void;
+  drawFrame: (image: HTMLImageElement | undefined) => void;
 }
 
 interface FrameCanvasProps {
@@ -23,7 +23,6 @@ export const FrameCanvas = forwardRef<FrameCanvasHandle, FrameCanvasProps>(funct
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const lastImageRef = useRef<HTMLImageElement | undefined>(undefined);
-  const lastBlendRef = useRef<FrameBlend | undefined>(undefined);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,7 +33,7 @@ export const FrameCanvas = forwardRef<FrameCanvasHandle, FrameCanvasProps>(funct
       if (width === 0 || height === 0) return;
       ctxRef.current = sizeCanvasToElement(canvas, width, height);
       if (lastImageRef.current && ctxRef.current) {
-        drawFrameCover(ctxRef.current, lastImageRef.current, width, height, lastBlendRef.current);
+        drawFrameCover(ctxRef.current, lastImageRef.current, width, height);
       }
     };
 
@@ -52,15 +51,14 @@ export const FrameCanvas = forwardRef<FrameCanvasHandle, FrameCanvasProps>(funct
   useImperativeHandle(
     ref,
     () => ({
-      drawFrame(image, next, mix = 0) {
+      drawFrame(image) {
         if (!image) return;
         lastImageRef.current = image;
-        lastBlendRef.current = next && mix > 0 ? { next, amount: mix } : undefined;
         const canvas = canvasRef.current;
         const ctx = ctxRef.current;
         if (!canvas || !ctx) return;
         const { width, height } = canvas.getBoundingClientRect();
-        drawFrameCover(ctx, image, width, height, lastBlendRef.current);
+        drawFrameCover(ctx, image, width, height);
       },
     }),
     []

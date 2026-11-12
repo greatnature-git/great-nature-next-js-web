@@ -94,33 +94,21 @@ export function ScrollCinemaSection({
   // GSAP's scrub onUpdate can fire more than once per animation frame;
   // coalesce draws onto the next rAF instead of drawing synchronously.
   //
-  // The index is kept fractional (not rounded) and the two frames it falls
-  // between are cross-faded by that fraction. A plain rounded index is a
-  // hard cut between stills, which only looks like motion when it happens
-  // fast enough (fast scrolling); a slow scroll holds one still for a long
-  // stretch with no movement in between, which reads as the scrub
-  // "sticking" even though the scroll position is still advancing.
+  // This snaps to the nearest loaded frame rather than cross-fading toward
+  // the next one. Cross-fading reads as smooth only when the two blended
+  // frames are visually close; this footage isn't a smooth continuous pan
+  // throughout — it has real cuts (e.g. exterior to interior), and at a
+  // cut, blending composites two unrelated stills into an obvious
+  // double-exposure ghost regardless of how slowly the blend plays out. At
+  // 240/180 frames across the scroll track, a hard cut between neighbors is
+  // already fine-grained enough to read as motion.
   const pendingIndexRef = useRef(0);
   const rafScheduledRef = useRef(false);
   const drawPending = () => {
     rafScheduledRef.current = false;
-    const rawIndex = pendingIndexRef.current;
-    const lo = Math.floor(rawIndex);
-    const mixAmount = rawIndex - lo;
-    const frameLo = findNearestLoadedFrame(frames.current, lo);
-
-    let frameHi: HTMLImageElement | undefined;
-    let mix = 0;
-    if (mixAmount > 0) {
-      const hi = Math.min(frames.current.length - 1, lo + 1);
-      const candidate = findNearestLoadedFrame(frames.current, hi);
-      if (candidate && candidate !== frameLo) {
-        frameHi = candidate;
-        mix = mixAmount;
-      }
-    }
-
-    canvasHandleRef.current?.drawFrame(frameLo, frameHi, mix);
+    const index = Math.round(pendingIndexRef.current);
+    const frame = findNearestLoadedFrame(frames.current, index);
+    canvasHandleRef.current?.drawFrame(frame);
   };
   const scheduleDraw = (rawIndex: number) => {
     pendingIndexRef.current = rawIndex;
