@@ -27,8 +27,8 @@ export function ProjectsTeaserSection() {
             Communities We&apos;ve Built
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-balance text-stone-700">
-            A growing portfolio of villa communities across Maharashtra and Karnataka — each one delivered on the
-            same promise of craftsmanship and care.
+            A growing portfolio of villa communities across Kakkanad and Pallikkara, Kochi — each one delivered on
+            the same promise of craftsmanship and care.
           </p>
         </motion.div>
 

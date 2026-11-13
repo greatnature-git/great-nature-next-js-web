@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getCoverRect } from "@/lib/scroll-cinema/drawFrame";
 
@@ -62,9 +63,14 @@ export function WatermarkCover({ containerRef }: { containerRef: React.RefObject
   const logoHeight = logoWidth / LOGO_RATIO;
 
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute flex items-center justify-center rounded-xl bg-forest-950 shadow-[0_2px_12px_rgba(8,12,7,0.35)]"
+    <Link
+      href="/"
+      aria-label="Great Nature Homes — go to homepage"
+      // z-30: this sits inside a scroll-cinema viewport whose children can
+      // include other absolutely-positioned overlays (e.g. a project-card
+      // grid in the previous-projects section) painted after this one in
+      // DOM order, which would otherwise stack on top and steal the click.
+      className="absolute z-30 flex cursor-pointer items-center justify-center rounded-xl bg-forest-950 shadow-[0_2px_12px_rgba(8,12,7,0.35)] transition-opacity hover:opacity-90"
       style={{
         left: centerX,
         top: centerY,
@@ -75,12 +81,12 @@ export function WatermarkCover({ containerRef }: { containerRef: React.RefObject
     >
       <Image
         src="/logo-wordmark.png"
-        alt=""
+        alt="Great Nature Homes"
         width={800}
         height={494}
         style={{ width: logoWidth, height: logoHeight }}
         className="object-contain opacity-95"
       />
-    </div>
+    </Link>
   );
 }

@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { MobileEnquireButton } from "@/components/layout/MobileEnquireButton";
 import { IntroSplash } from "@/components/splash/IntroSplash";
+import { ChatAssistant } from "@/components/chat/ChatAssistant";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
           <SiteFooter />
           <MobileEnquireButton />
+          <ChatAssistant />
         </SmoothScrollProvider>
       </body>
     </html>

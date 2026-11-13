@@ -10,21 +10,52 @@ export function MobileEnquireButton() {
   const pathname = usePathname();
   // Project detail pages and the About page have their own in-page #enquiry
   // section; everywhere else, the enquiry form lives on the home page.
-  const hasOwnEnquirySection = pathname.startsWith("/projects/") || pathname === "/about-us";
+  const hasOwnEnquirySection =
+    pathname.startsWith("/projects/") || pathname === "/about-us";
   const enquiryHref = hasOwnEnquirySection ? "#enquiry" : "/#enquiry";
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > window.innerHeight * 0.6);
+    let pastHero = false;
+    let enquirySectionVisible = false;
+
+    const updateVisibility = () =>
+      setVisible(pastHero && !enquirySectionVisible);
+
+    const onScroll = () => {
+      pastHero = window.scrollY > window.innerHeight * 0.6;
+      updateVisibility();
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+
+    // Hide the sticky CTA once the real enquiry form has scrolled into view,
+    // so it doesn't float on top of (or duplicate) the form's own submit button.
+    const enquirySection = document.getElementById("enquiry");
+    let observer: IntersectionObserver | undefined;
+    if (enquirySection) {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          enquirySectionVisible = entry.isIntersecting;
+          updateVisibility();
+        },
+        { rootMargin: "0px 0px -15% 0px" },
+      );
+      observer.observe(enquirySection);
+    }
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      observer?.disconnect();
+    };
+  }, [pathname]);
 
   return (
     <Link
       href={enquiryHref}
       className={`fixed inset-x-4 bottom-4 z-40 flex items-center justify-center rounded-full bg-clay-500 py-3.5 text-center text-sm font-semibold text-stone-50 shadow-lg shadow-forest-950/20 transition-all duration-300 md:hidden ${
-        visible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
+        visible
+          ? "translate-y-0 opacity-100"
+          : "translate-y-24 opacity-0 pointer-events-none"
       }`}
     >
       Submit Enquiry

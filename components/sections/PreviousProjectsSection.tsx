@@ -45,7 +45,8 @@ export function PreviousProjectsSection() {
         <>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest-950/85 via-forest-950/10 to-forest-950/50" />
 
-          <div className="pointer-events-none absolute inset-x-0 top-16 flex flex-col items-center px-6 text-center">
+          {/* top offset clears the fixed SiteHeader (~80-88px tall) with room to spare, instead of sitting almost underneath it. */}
+          <div className="pointer-events-none absolute inset-x-0 top-28 flex flex-col items-center px-6 text-center sm:top-32">
             <span className="text-xs font-medium uppercase tracking-[0.3em] text-clay-400">Previous Projects</span>
             <h2 className="mt-3 font-display text-3xl font-medium text-stone-50 sm:text-4xl">
               Communities We&apos;ve Built

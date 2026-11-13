@@ -73,22 +73,26 @@ export function ScrollCinemaSection({
           observer.disconnect();
         }
       },
-      { rootMargin: "800px 0px 800px 0px" }
+      { rootMargin: "800px 0px 800px 0px" },
     );
     observer.observe(wrapperRef.current);
     return () => observer.disconnect();
   }, [reducedMotion]);
 
-  const { frames, loadedCount, total, firstFrameReady, isReady } = useFrameSequence(frameUrls, {
-    active: active && !reducedMotion,
-  });
+  const { frames, loadedCount, total, firstFrameReady, isReady } =
+    useFrameSequence(frameUrls, {
+      active: active && !reducedMotion,
+    });
 
   // The frames load in spread-out "coverage" order (see useFrameSequence), so
   // scrubbing already looks smooth well before every single frame is in —
   // gate the loading overlay on that lighter threshold instead of 100%, so
   // the cinematic feels responsive almost immediately instead of stalling
   // the whole scroll on a full download.
-  const scrubReadyThreshold = Math.min(total, Math.max(16, Math.ceil(total / 10)));
+  const scrubReadyThreshold = Math.min(
+    total,
+    Math.max(16, Math.ceil(total / 10)),
+  );
   const scrubReady = isReady || loadedCount >= scrubReadyThreshold;
 
   // GSAP's scrub onUpdate can fire more than once per animation frame;
@@ -151,7 +155,10 @@ export function ScrollCinemaSection({
   if (reducedMotion) {
     return (
       <section id={id} className={className}>
-        <div ref={viewportRef} className="relative h-screen w-full overflow-hidden">
+        <div
+          ref={viewportRef}
+          className="relative h-screen w-full overflow-hidden"
+        >
           {/* prefers-reduced-motion means no self-driven motion: show the
               poster frame only, don't autoplay/loop a video over it. */}
           <video
@@ -170,17 +177,27 @@ export function ScrollCinemaSection({
   }
 
   return (
-    <section id={id} ref={wrapperRef} className={className} style={{ height: `${heightVh}vh` }}>
+    <section
+      id={id}
+      ref={wrapperRef}
+      className={className}
+      style={{ height: `${heightVh}vh` }}
+    >
       <div
         ref={viewportRef}
         className="sticky top-0 h-screen w-full overflow-hidden bg-forest-950 bg-cover bg-center"
         style={{ backgroundImage: `url(${posterSrc})` }}
       >
-        <FrameCanvas ref={canvasHandleRef} className="absolute inset-0 h-full w-full" />
+        <FrameCanvas
+          ref={canvasHandleRef}
+          className="absolute inset-0 h-full w-full"
+        />
         <WatermarkCover containerRef={viewportRef} />
         {!scrubReady && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-forest-950/80 text-stone-100">
-            <span className="text-xs uppercase tracking-[0.2em] text-stone-300">{loadingLabel}</span>
+            <span className="text-xs uppercase tracking-[0.2em] text-stone-300">
+              {loadingLabel}
+            </span>
             <div className="h-0.5 w-40 overflow-hidden rounded-full bg-stone-100/20">
               <div
                 className="h-full bg-clay-400 transition-[width] duration-200 ease-out"

@@ -6,13 +6,11 @@ import type { NearbyPlace } from "@/lib/data/projects";
 interface ProjectLocationMapProps {
   location: string;
   nearby: NearbyPlace[];
-  mapQuery: string;
+  mapEmbedSrc: string;
 }
 
-/** A plain Google Maps embed (no API key), plus a "What's Nearby" list of real, verified distances. */
-export function ProjectLocationMap({ location, nearby, mapQuery }: ProjectLocationMapProps) {
-  const embedSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
-
+/** A Google Maps embed tied to this project's verified place listing (no API key), plus a "What's Nearby" list of real, verified distances. */
+export function ProjectLocationMap({ location, nearby, mapEmbedSrc }: ProjectLocationMapProps) {
   return (
     <section className="bg-stone-50 px-6 py-20 sm:px-10 sm:py-24">
       <div className="mx-auto max-w-6xl">
@@ -31,7 +29,7 @@ export function ProjectLocationMap({ location, nearby, mapQuery }: ProjectLocati
 
             <div className="mt-8 overflow-hidden rounded-2xl border border-forest-900/10">
               <iframe
-                src={embedSrc}
+                src={mapEmbedSrc}
                 title={`Map of ${location}`}
                 className="h-[380px] w-full"
                 loading="lazy"

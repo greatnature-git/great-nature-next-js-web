@@ -42,7 +42,7 @@ export default async function ProjectDetailPage(props: PageProps<"/projects/[slu
       <ProjectGallery images={project.gallery} alt={project.name} />
       <ProjectOverview project={project} />
       <ProjectAmenities amenities={project.amenities} />
-      <ProjectLocationMap location={project.location} nearby={project.nearby} mapQuery={project.mapQuery} />
+      <ProjectLocationMap location={project.location} nearby={project.nearby} mapEmbedSrc={project.mapEmbedSrc} />
       <SimilarProjects excludeSlug={project.slug} />
       <EnquiryCTASection
         heading={`Enquire About ${project.name}`}

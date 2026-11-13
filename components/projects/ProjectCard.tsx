@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import type { Project } from "@/lib/data/projects";
 
 interface ProjectCardProps {
@@ -12,8 +13,13 @@ interface ProjectCardProps {
 }
 
 /** The project card used on the /projects grid, the home teaser, and "Similar Projects". */
-export function ProjectCard({ project, index = 0, size = "default" }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  index = 0,
+  size = "default",
+}: ProjectCardProps) {
   const imageHeight = size === "compact" ? "h-48" : "h-64";
+  const [imageFailed, setImageFailed] = useState(false);
 
   return (
     <motion.div
@@ -26,25 +32,38 @@ export function ProjectCard({ project, index = 0, size = "default" }: ProjectCar
         href={`/projects/${project.slug}`}
         className="group block h-full overflow-hidden rounded-2xl border border-forest-900/10 bg-white shadow-sm transition-shadow hover:shadow-lg"
       >
-        <div className={`relative w-full overflow-hidden ${imageHeight}`}>
-          <Image
-            src={project.image}
-            alt={project.name}
-            fill
-            sizes="(max-width: 640px) 100vw, 50vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+        <div
+          className={`relative w-full overflow-hidden bg-forest-900/10 ${imageHeight}`}
+        >
+          {imageFailed ? (
+            <div className="flex h-full w-full items-center justify-center bg-forest-900/10 text-sm text-stone-500">
+              {project.name}
+            </div>
+          ) : (
+            <Image
+              src={project.image}
+              alt={project.name}
+              fill
+              sizes="(max-width: 640px) 100vw, 50vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              onError={() => setImageFailed(true)}
+            />
+          )}
           <span className="absolute left-4 top-4 rounded-full bg-forest-950/80 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-stone-50 backdrop-blur-sm">
             {project.status}
           </span>
         </div>
         <div className={size === "compact" ? "p-5" : "p-6"}>
-          <h3 className={`font-display font-medium text-forest-950 ${size === "compact" ? "text-lg" : "text-xl"}`}>
+          <h3
+            className={`font-display font-medium text-forest-950 ${size === "compact" ? "text-lg" : "text-xl"}`}
+          >
             {project.name}
           </h3>
           <p className="mt-1 text-sm text-stone-600">{project.location}</p>
           {size === "default" && project.villaCount && (
-            <p className="mt-3 text-sm font-medium text-clay-600">{project.villaCount} Villas</p>
+            <p className="mt-3 text-sm font-medium text-clay-600">
+              {project.villaCount} Villas
+            </p>
           )}
         </div>
       </Link>

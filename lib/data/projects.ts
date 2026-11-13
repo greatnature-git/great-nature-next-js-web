@@ -24,7 +24,15 @@ export interface Project {
   specs: ProjectSpecs;
   amenities: string[];
   nearby: NearbyPlace[];
-  mapQuery: string;
+  /**
+   * The full Google Maps "embed" iframe src for this project's own verified
+   * Google Business listing, copied as-is from greentechbuilders.in. This
+   * embeds by place ID (the `!1s<place-id>!2s<name>` segment), not by raw
+   * lat/lng — a plain `maps?q=lat,lng` embed has no business tied to that
+   * exact point and Google's info card fails to load ("Place info couldn't
+   * load") when it's clicked, even when the coordinates are accurate.
+   */
+  mapEmbedSrc: string;
   floorPlanImage?: string;
   videoSrc?: string;
 }
@@ -71,7 +79,8 @@ export const PREVIOUS_PROJECTS: Project[] = [
       { name: "Rajagiri Christu Jayanthi Public School", distance: "3 km" },
       { name: "Sunrise Hospital", distance: "4 km" },
     ],
-    mapQuery: "Athani, Kakkanad, Kochi, Kerala, India",
+    mapEmbedSrc:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.9270790636856!2d76.35677317597292!3d10.022876372638747!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b080d49588d2011%3A0xdfeeb46b742762d5!2sGreenock%20Villas!5e0!3m2!1sen!2sin!4v1685700096870!5m2!1sen!2sin",
   },
   {
     slug: "mexican-bungalows",
@@ -106,7 +115,8 @@ export const PREVIOUS_PROJECTS: Project[] = [
       { name: "Infopark & SmartCity", distance: "5 km" },
       { name: "Wonderla", distance: "4 km" },
     ],
-    mapQuery: "Pallikkara, Kakkanad, Kochi, Kerala, India",
+    mapEmbedSrc:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929.081807152084!2d76.41134001479428!3d10.010101392844247!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b080b79ec05d835%3A0x775ec3dc0497d7b8!2sGreentech%20-%20The%20Mexican%20Bungalows!5e0!3m2!1sen!2sin!4v1628663540221!5m2!1sen!2sin",
   },
   {
     slug: "scotland-yard-villa",
@@ -140,7 +150,8 @@ export const PREVIOUS_PROJECTS: Project[] = [
       { name: "Kakkanad Civil Station", distance: "5 km" },
       { name: "Infopark", distance: "4 km" },
     ],
-    mapQuery: "Kakkanad-Pallikkara Road, Kochi, Kerala, India",
+    mapEmbedSrc:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.8858900126206!2d76.3961415153517!3d10.026274392833159!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b080b0b772d3565%3A0xcf3646e410fb572c!2sGreentech%20-%20Scotlandyard%20Villas!5e0!3m2!1sen!2sin!4v1622867913586!5m2!1sen!2sin",
   },
   {
     slug: "spanish-villa",
@@ -160,7 +171,8 @@ export const PREVIOUS_PROJECTS: Project[] = [
       { name: "Kakkanad Civil Station", distance: "5 km" },
       { name: "Infopark", distance: "4 km" },
     ],
-    mapQuery: "Kochi, Kerala, India",
+    mapEmbedSrc:
+      "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15715.44695486008!2d76.3984513!3d10.0282663!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b080bd6e033f1d7%3A0xd1d1f0d9d175f22a!2sGreentech%20Spanish%20Villas!5e0!3m2!1sen!2sin!4v1696569543172!5m2!1sen!2sin",
   },
   {
     slug: "rainwoods-villa",
@@ -188,7 +200,8 @@ export const PREVIOUS_PROJECTS: Project[] = [
       { name: "Edapally", distance: "10 km" },
       { name: "Aluva", distance: "12 km" },
     ],
-    mapQuery: "Near Infopark, Kakkanad, Kochi, Kerala, India",
+    mapEmbedSrc:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.9511161417945!2d76.38933151333687!3d10.02089283137223!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b080be471e36107%3A0xd6083d85bc46576a!2sGreen%20Rainwoods!5e0!3m2!1sen!2sin!4v1622868290936!5m2!1sen!2sin",
   },
   {
     slug: "greencasa-villas",
@@ -208,7 +221,13 @@ export const PREVIOUS_PROJECTS: Project[] = [
       { name: "Cochin Airport", distance: "40 mins" },
       { name: "Aluva", distance: "20 mins" },
     ],
-    mapQuery: "Pallikkara, Kakkanad, Kochi, Kerala, India",
+    // Built as a simple place embed (matching the pattern of the other
+    // projects' own embeds) from this listing's verified place ID and
+    // coordinates — greentechbuilders.in's own embed for this one is a
+    // directions-mode URL (two points + travel mode) rather than a plain
+    // location pin, which isn't what this "Location" section needs.
+    mapEmbedSrc:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.95!2d76.4101676!3d10.0106025!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b080b05289a5d77%3A0xde9ea640420ee0e1!2sGreentech%20-%20Green%20Casa%20villas!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
   },
 ];
 
